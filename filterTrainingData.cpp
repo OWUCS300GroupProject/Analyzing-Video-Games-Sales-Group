@@ -1,6 +1,5 @@
 //work in progress
 #include <iostream>
-#include <Eigen/Dense>
 #include <string>
 #include <vector>
 #include "attribute.h"
@@ -44,3 +43,4 @@ vector<Instance> Filter(string& platform, string& genre, string& publisher, vect
 	}
 	return filter;
 }
+
