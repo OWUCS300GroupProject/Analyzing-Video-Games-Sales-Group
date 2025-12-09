@@ -1,4 +1,3 @@
-//hw6.cpp
 #include <iostream>
 #include <Eigen/Dense>
 #include <string>
@@ -163,22 +162,53 @@ void Read_File(string& filename, vector<Attribute>& attribute_list,
   }
   fin.close();
 }
+
+//Pre: platform, genre, and publisher are empty string that need to be established, or already filled.
+//examples is the training dataset of instances, attribute_list is a vector of attributes
+//Post: This function allows users to filter the dataset based on platform, genre, and publisher. Returns a vector of instances which hold
+//the desired filters. This is used to train the model based on related material, rather than the entire training dataset. 
+//Note: This can be changed to return a vector of ints to reduce memory.
+vector<Instance> Filter(string& platform, string& genre, string& publisher, vector<Instance>& examples) {
+	cin.ignore(numeric_limits<streamsize>::max(), '\n');
+	if(platform == "") {
+		cout << "Enter the Platform (Wii, PS4, DS, etc): ";
+		getline(cin, platform);
+	}
 	
+	if(genre == "") {
+		cout << "Enter the Genre (Shooter, Action, Strategy, etc): ";
+		getline(cin, genre);
+	}
+		
+	if(publisher == "") {
+		cout << "Enter the Publisher (Nintendo, Ubisoft, Activision, etc): ";
+		getline(cin, publisher);
+	}
+	
+	int size = examples.size();
+	vector<Instance> filter;
+	for(int i=0; i < size; i++) {
+		if(platform == examples[i].Get_Nominal_Value(1) || genre == examples[i].Get_Nominal_Value(3) || publisher == examples[i].Get_Nominal_Value(4)) {
+			filter.push_back(examples[i]);
+		}
+	}
+	return filter;
+}
 
 int main(){
 	string again = "y";
 	while (again == "y") {
 			
 	  string filename;
-	  cout << "Select Training Data to Use: " << endl << "Type 1 for train.arff" << endl << "Type 2 for test.arff" << endl << "Type 3 for output.arff" << endl << "Type 4 to enter your own filename." << endl << "Enter your choice: ";
+	  cout << "Select Training Data to Use: " << endl << "Type 1 for linear_train.arff" << endl << "Type 2 for linear_test.arff" << endl << "Type 3 for linear_output.arff" << endl << "Type 4 to enter your own filename." << endl << "Enter your choice: ";
 	  cin >> filename;
 	  
 	  if(filename == "1") 
-		  filename = "train.arff";
+		  filename = "linear_train.arff";
 	  else if(filename == "2") 
-		  filename = "test.arff";
+		  filename = "linear_test.arff";
 	  else if(filename == "3") 
-		  filename = "output.arff";
+		  filename = "linear_output.arff";
 	  else if(filename == "4") {
 		  cout << "Enter the filename: ";
 		  cin >> filename;
@@ -194,34 +224,50 @@ int main(){
 	  
 	  //END OF FILE
 	  
+	  char chfilter;
+	  cout << "Would you like to filter the training data? (y or n): ";
+	  cin >> chfilter;
 	  
+	  string filPlat = "";
+	  string filGenre = "";
+	  string filPubl = "";
+	  if (chfilter == 'y') {
+		examples = Filter(filPlat,filGenre,filPubl,examples);
+	  }
 	  
-	  cout <<"Instances: "<< examples.size() << endl;
+	  cout << endl <<"Instances: "<< examples.size() << endl;
 	  cout <<"Attribute: "<< attribute_list.size() << endl;
 	  
 	  int critic_idx = 10;
-	int user_idx = 12;
-	int global_idx = 9;
+	  int user_idx = 12;
+	  int global_idx = 9;
 	  
 	  vector<double> critic_values;
 	  vector<double> user_values;
 	  vector<double> global_values;
+	  vector<double> critic_count_values;
+	  vector<double> user_count_values;
 	  
 	  for(int i = 0; i < examples.size(); i++){
 		critic_values.push_back(examples[i].Get_Numeric_Value(critic_idx));
 		user_values.push_back(examples[i].Get_Numeric_Value(user_idx));
 		global_values.push_back(examples[i].Get_Numeric_Value(global_idx));
+		critic_count_values.push_back(examples[i].Get_Numeric_Value(11));
+		user_count_values.push_back(examples[i].Get_Numeric_Value(13));
 	  }
 	  
 	  int N = examples.size();
 	  
-	  MatrixXd X(N, 3);
+	  MatrixXd X(N, 5);
 	  MatrixXd y(N, 1);
 
 	  for (int i = 0; i < N; ++i) {
 			X(i, 0) = 1.0; // bias term
 			X(i, 1) = critic_values[i];
 			X(i, 2) = user_values[i];
+			X(i, 3) = critic_count_values[i];
+			X(i, 4) = user_count_values[i];
+			
 			y(i, 0) = global_values[i];
 		}
 	  //cout << "X: " << X << endl;
@@ -229,19 +275,16 @@ int main(){
 	  
 	  MatrixXd w = ((X.transpose() * X).inverse() * X.transpose() * y);
 	  
-	  cout << endl << "Matrix RSS: " << endl;
-	  cout << "Weights:" << endl;
-	  cout << "w0 (bias): " << w(0,0) << endl;
-	  cout << "w1 (Critic_Score): " << w(1,0) << endl;
-	  cout << "w2 (User_Score): " << w(2,0) << endl;
+		cout << "Weights:" << endl;
+		cout << "w0 (bias): " << w(0,0) << endl;
+		cout << "w1 (Critic_Score): " << w(1,0) << endl;
+		cout << "w2 (User_Score): " << w(2,0) << endl;
+		cout << "w4 (Critic_Count): " << w(3,0) << endl;
+		cout << "w5 (User_Count): " << w(4,0) << endl;
 	  
 	  MatrixXd y_prediction_matrix = X * w;
 	  MatrixXd residuals = y - y_prediction_matrix;
-	  
-	  /*double RSS2 = 0.0;
-	  for (int i =0; i < attribute_list.size(); i++) {
-		  RSS2 += pow(residuals(i,0), 2);
-	  }*/  
+	   
 	  
 	  double RSS = (residuals.array().square()).sum();
 	  
@@ -250,40 +293,42 @@ int main(){
 	  
 	  
 	  int choose;
-	  cout <<endl << "1: Run Test data" << endl << "2: Predict new instance" << endl << "0: Quit: ";
+	  cout <<endl << "1: Run Test data" << endl << "0: Quit: ";
 	  cin>> choose;
 	  
 	  
 	  if(choose == 1) {
 		vector<Attribute> attribute_list_test;
 		vector<Instance> test_examples;
-		filename = "test.arff";
+		filename = "linear_test.arff";
 		Read_File(filename, attribute_list_test, test_examples);
 		
+		if (chfilter == 'y') {
+			test_examples = Filter(filPlat,filGenre,filPubl,test_examples);
+		}
 		
 		double test_RSS = 0.0;
 
 		for(int i = 0; i < test_examples.size(); i++){
 			double critic_val = test_examples[i].Get_Numeric_Value(critic_idx);
 			double user_val = test_examples[i].Get_Numeric_Value(user_idx);
+			double critic_count_val = test_examples[i].Get_Numeric_Value(11);
+			double user_count_val = test_examples[i].Get_Numeric_Value(13);
 			double actual = test_examples[i].Get_Numeric_Value(global_idx);
 
-			double predicted_global = w(0,0) + w(1,0) * critic_val + w(2,0) * user_val;
+			double predicted_global = w(0,0) + w(1,0) * critic_val+ w(2,0) * user_val + w(3,0) * critic_count_val+ w(4,0) * user_count_val;
 
-			// Print the prediction and actual value
-			cout << "Instance " << i << ":" << endl
+			//Print the prediction and actual sales
+			cout << test_examples[i].Get_Nominal_Value(0) << ":" << endl
 				 << "Predicted Global Sales = " << predicted_global << endl
 				 << "Actual Global Sales = " << actual << endl << endl;
 
-			// Update RSS
+			//Update RSS
 			test_RSS += pow(actual - predicted_global, 2);
 		}
 
-		// After the loop, print the total RSS
+		//After the loop, print the total RSS
 		cout << "Test RSS: " << test_RSS << endl;
-	  }
-	  else if (choose == 2) {
-		  
 	  }
 	  else{}
 	  cout << "Again? (y or n)" << endl;
