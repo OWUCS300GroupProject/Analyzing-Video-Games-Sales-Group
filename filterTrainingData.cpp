@@ -1,4 +1,3 @@
-//work in progress
 #include <iostream>
 #include <string>
 #include <vector>
@@ -14,22 +13,22 @@ using namespace std;
 //Note: This can be changed to return a vector of ints to reduce memory.
 vector<Instance> Filter(string& platform, string& genre, string& publisher, vector<Instance>& examples, vector<Attribute>& attribute_list) {
 	if(platform == "") { 
-		cout << "Enter the Platform (Wii, Playstation, etc): ";
-		cin >> platform;
+		cout << "Enter the Platform (Wii, PS4, etc): ";
+		getline(cin, platform);
 		if(attribute_list[2].In_Domain(platform)) {
 			cout << "Platform is invalid";
 		}
 	}
 	if(genre == ""){
 		cout << "Enter the Genre (Sports, Platformer, etc): ";
-		cin >> genre;
+		getline(cin, genre);
 		if(attribute_list[4].In_Domain(genre)) {
 			cout << "Genre is invalid";
 		}
 	}
 	if(publisher == ""){
-		cout << "Enter the Publisher (Wii, Playstation, etc): ";
-		cin >> publisher;
+		cout << "Enter the Publisher (Nintendo, SquareSoft, etc): ";
+		getline(cin, publisher);
 		if(attribute_list[5].In_Domain(publisher)) {
 			cout << "Publisher is invalid";
 		}
@@ -43,4 +42,5 @@ vector<Instance> Filter(string& platform, string& genre, string& publisher, vect
 	}
 	return filter;
 }
+
 
