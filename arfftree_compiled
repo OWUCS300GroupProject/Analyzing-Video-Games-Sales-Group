@@ -523,9 +523,6 @@ int main(){
   fin.close();
   
   Modify_Class(training_examples);
-  for(int i = 0; i < 10; i++){
-  	cout << training_examples[i].Get_Nominal_Value(attribute_list.size()-1) << endl;
-  }
   
   //build the decision tree
   vector<bool> chosen_attributes(attribute_list.size(), false);
