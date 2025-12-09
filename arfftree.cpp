@@ -14,7 +14,7 @@
 //reads training  and test arff file
 //builds a decision tree using info gain
 
-child_index
+
 using namespace std;
 //////////////////////////////////////////////////////////////////////////////////
 //Parse_Data: a helper func to parse one line of data into an Instance
@@ -539,3 +539,4 @@ ifstream fin_test;
 
   return 0;
 }
+
