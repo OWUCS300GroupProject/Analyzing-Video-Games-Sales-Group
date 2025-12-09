@@ -1,4 +1,3 @@
-@relation converted_csv
 @attribute Rank numeric
 @attribute Name string
 @attribute Platform string
