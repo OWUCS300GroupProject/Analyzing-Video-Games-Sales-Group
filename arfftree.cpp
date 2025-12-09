@@ -1,4 +1,5 @@
 //arfftree.cpp
+
 #include <iostream>
 #include <string>
 #include <vector>
@@ -13,7 +14,7 @@
 //reads training  and test arff file
 //builds a decision tree using info gain
 
-
+child_index
 using namespace std;
 //////////////////////////////////////////////////////////////////////////////////
 //Parse_Data: a helper func to parse one line of data into an Instance
@@ -236,15 +237,19 @@ TreeNode* Build_Tree(const vector<Attribute>& attribute_list, const vector<Insta
   int classification_attribute = attribute_list.size() - 1;
  
  //Base Case 1: all examples have the same class -> make a leaf
- if(Examples_Agree(examples, classification_attribute)){ 
+if(Examples_Agree(examples, classification_attribute)){
     root->Set_Leaf(true);
-	
-	// if no instances gets to this node, label it by the parent's choice
-    if(examples.size() == 0)
-      root->Set_Info(parent_choice);
-      root->Set_Info(examples[0].Get_Nominal_Value(classification_attribute));
+
+    // if no instances get to this node, label it by the parent's choice
+    if (examples.size() == 0){
+        root->Set_Info(parent_choice);
+    }
+    else{
+        root->Set_Info(examples[0].Get_Nominal_Value(classification_attribute));
+    }
+
     return root;
-  }
+}
   else{
     root->Set_Leaf(false);
 	
@@ -312,7 +317,7 @@ void Print_Tree(TreeNode* root){
 	string Traverse_Tree(TreeNode* root, const Instance& example, const vector<Attribute>& attribute_list){
 	
 	if(root == 0) 
-		return "unkown";
+		return "unknown";
 	//leaf -> return its class label
 	if(root-> Is_Leaf()){
 		//if it is, the info string is the classification of the ezample, so output/return that
@@ -351,10 +356,10 @@ void Print_Tree(TreeNode* root){
   }
 
   // Make a recursive call on this child of the node
-  if(child_index != -1){
-	  return "unknown";
-  }
-  return Traverse_Tree(root->Get_Child(child_index), example, attribute_list);
+  if (child_index == -1) {
+    return "unknown";
+}
+return Traverse_Tree(root->Get_Child(child_index), example, attribute_list);
 
 }
 
@@ -459,8 +464,8 @@ int main(){
       }
     }
     num_read++;
-   fin.close();
   }
+  fin.close();
   
   //build the decision tree
   vector<bool> chosen_attributes(attribute_list.size(), false);
@@ -506,7 +511,7 @@ ifstream fin_test;
  
   //training error
   int wrong_train = 0;
-  int class_index = attribute_list.size() - 1;
+
   
   for(int i = 0; i < training_examples.size(); i++){
     string predicted = Traverse_Tree(root, training_examples[i], attribute_list);
