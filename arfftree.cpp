@@ -29,12 +29,10 @@ void Parse_Data(string s, const vector<Attribute>&  attribute_list,
   string cur_val;
   
   //reads values seperated by commas
-  while(ss >> cur_val){
-    if(cur_val[cur_val.size()-1] == ',')
-      cur_val = cur_val.substr(0, cur_val.size()-1); // trim off comma
+  while (getline(ss, cur_val, ',')){
     cur_instance.Add_Value(cur_attribute, cur_val);
     cur_attribute++;
-  }
+}
   if(cur_attribute != attribute_list.size()){
     cout << "ERROR: Wrong number of attributes on line: " << s << endl;
     exit(1);
@@ -533,10 +531,11 @@ ifstream fin_test;
   }
   
   
-  double test_error = wrong_test / test_examples.size();
+  double test_error = (double)wrong_test / test_examples.size();
   
   cout << "Test error rate: " << test_error << endl;
 
   return 0;
 }
+
 
