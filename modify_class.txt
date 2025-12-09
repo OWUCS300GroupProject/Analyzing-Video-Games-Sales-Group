@@ -8,7 +8,7 @@ void Modify_Class(vector<Instance>& examples){
 		double replace = floor(cur_val/5);
 		
 		//new category is the highest multiple of 5 that can go into the previous sales price
-		examples[i].Add_Value(examples[i].Get_Num_Attributes(), to_string(replace));
+		examples[i].Add_Value(examples[i].Get_Num_Attributes()-1, to_string(replace));
 		
 	}
 	
